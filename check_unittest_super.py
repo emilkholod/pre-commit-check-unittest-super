@@ -10,6 +10,7 @@ class TestSuperChecker(ast.NodeVisitor):
     def __init__(self):
         self.errors = 0
         self.current_filename = ""
+        self.check_methods = {"setUp", "tearDown", "setUpClass", "tearDownClass", "setUpTestData"}
 
     def check_files(self, files):
         for file in files:
@@ -26,7 +27,7 @@ class TestSuperChecker(ast.NodeVisitor):
             print("SyntaxError on file %s:%d" % (filename, error.lineno))
 
     def visit_FunctionDef(self, node):
-        if node.name in ["setUp", "tearDown", "setUpClass", "tearDownClass"]:
+        if node.name in self.check_methods:
             is_super_present = any(self.find_super_in_expression(node, i) for i in node.body)
             if not is_super_present:
                 print(
